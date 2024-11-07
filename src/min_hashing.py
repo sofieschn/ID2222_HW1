@@ -8,7 +8,7 @@ import random
 class MinHashing: 
     def __init__(self, num_hashes):
         self.num_hashes = num_hashes # Specifies the length of the minhash signature (the number of hash functions to use).
-        self.max_shingle_id = 2**32-1 #just a large nr 
+        self.max_shingle_id = 2**32-1 #just a large nr (could be 4834858345 as well)
         self.hash_functions = self.generate_hash_functions() #A list of tuples representing the hash functions
 
     
