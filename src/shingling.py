@@ -4,7 +4,7 @@ import hashlib
 """"---------Step 1: Shingling: Convert documents to sets----------"""
 
 class Shingling: 
-    def _init_(self, k) :
+    def __init__(self, k) :
         self.k=k # k is the length of the shingle
 
     # function creates shingles of the data in the document
@@ -15,7 +15,7 @@ class Shingling:
             shingle = document[i:i + self.k] 
             hashed_shingle = self.hash_shingle(shingle) # call hash function to hash each shingle
             shingles.add(hashed_shingle) 
-            return shingles
+        return shingles
         
 
     # each shingle needs to be hashed for comparison later
@@ -23,6 +23,6 @@ class Shingling:
     # MD5 is from the hashlib lib, converts shingle to hash value
     # hexdigest() converts the string to int
     def hash_shingle(self, shingle):
-        hashed_shingle = int(hashlib.md5(shingle.encode('utf.8')).hexdigest(),16) 
+        hashed_shingle = int(hashlib.md5(shingle.encode('utf-8')).hexdigest(),16) 
         return hashed_shingle
 
