@@ -6,7 +6,7 @@ original documents.----------"""
 
 
 class CompareSignatures: 
-    @staticmethod
+    @staticmethod # It’s a standalone function that only requires two minhash signatures as inputs to work.
     def signature_similarity(signature1, signature2):
         # takes to minhash signatures and checks the similarity between the two
         # first checks that the length of the 2 are the same 
