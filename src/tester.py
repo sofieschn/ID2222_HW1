@@ -7,8 +7,9 @@ from min_hashing import MinHashing
 from compare_signatures import CompareSignatures
 from lsh import LSH
 
-# Set the absolute path to the Data folder
-data_folder = "/Users/sofieschnitzer/Desktop/KTH_HT24_filer/ID2222/upg/DataMining_HW1/src/Data"
+# Locate the Data folder dynamically based on the script's location
+script_dir = os.path.dirname(os.path.abspath(__file__))  # Directory of the script
+data_folder = os.path.join(script_dir, "Data")  # Adjust if Data is in a subdirectory
 
 def load_articles(data_folder):
     """Loads article texts from JSON files in the specified folder."""
