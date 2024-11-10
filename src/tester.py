@@ -3,6 +3,9 @@ import json
 import time
 from shingling import Shingling
 from compare_sets import CompareSets
+from min_hashing import MinHashing
+from compare_signatures import CompareSignatures
+from lsh import LSH
 
 # Set the absolute path to the Data folder
 data_folder = "/Users/sofieschnitzer/Desktop/KTH_HT24_filer/ID2222/upg/DataMining_HW1/src/Data"
@@ -23,35 +26,38 @@ def load_articles(data_folder):
     
     return articles
 
-def explore_similarities(corpus, k):
-    """Calculate and display similarity scores for all document pairs."""
-    # Step 1: Initialize Shingling
+def explore_similarities_with_lsh(corpus, k, num_hashes, num_bands, rows_per_band, similarity_threshold):
+    """Calculate and display similarity scores for all document pairs using LSH."""
+    # Step 1: Initialize Shingling and MinHashing
     shingler = Shingling(k)
+    minhasher = MinHashing(num_hashes)
+    lsh = LSH(num_bands, rows_per_band, similarity_threshold)
     
-    # Step 2: Create shingles for each document in the corpus
+    # Step 2: Create shingles and MinHash signatures for each document
     shingle_sets = []
+    minhash_signatures = []
+    
     for doc in corpus:
         shingle_set = shingler.create_shingles(doc)
         shingle_sets.append(shingle_set)
+        minhash_signature = minhasher.minhash_signature(shingle_set)
+        minhash_signatures.append(minhash_signature)
 
-    # Step 3: Measure time and compare Jaccard similarities for each document pair
+    # Step 3: Use LSH to find candidate pairs
     start_time = time.time()
-    similarity_scores = []  # Store all document pair similarities
+    candidate_pairs = lsh.find_candidate_pairs(minhash_signatures)
     
-    # Compare each document pair
-    for i in range(len(corpus)):
-        for j in range(i + 1, len(corpus)):  # Only compare each pair once
-            jaccard_similarity = CompareSets.jaccard_similarity(shingle_sets[i], shingle_sets[j])
-            similarity_scores.append((i, j, jaccard_similarity))
-    
+    # Step 4: Filter candidate pairs based on actual similarity
+    filtered_pairs = lsh.filter_candidates(candidate_pairs, minhash_signatures, CompareSignatures.signature_similarity)
     end_time = time.time()
+
     elapsed_time = end_time - start_time
 
-    # Step 4: Output the results
-    print(f"Execution Time: {elapsed_time:.4f} seconds")
-    print("Similarity Scores for All Document Pairs:")
-    for (doc1, doc2, sim) in similarity_scores:
-        print(f"Document {doc1 + 1} and Document {doc2 + 1} - Jaccard Similarity: {sim:.4f}")
+    # Step 5: Output the results
+    print(f"Execution Time with LSH: {elapsed_time:.4f} seconds")
+    print(f"Candidate Pairs (Similarity >= {similarity_threshold}):")
+    for doc1, doc2, sim in filtered_pairs:
+        print(f"Document {doc1 + 1} and Document {doc2 + 1}: Similarity = {sim:.4f}")
 
 # Load the articles from the Data folder
 corpus = load_articles(data_folder)
@@ -60,6 +66,11 @@ corpus = load_articles(data_folder)
 if corpus:
     # Run the similarity exploration with chosen parameters
     k = 5  # Shingle length
-    explore_similarities(corpus, k)
+    num_hashes = 100  # Number of hash functions for MinHash
+    num_bands = 20  # Number of bands in LSH
+    rows_per_band = 5  # Rows per band in LSH
+    similarity_threshold = 0.8  # Threshold for LSH
+
+    explore_similarities_with_lsh(corpus, k, num_hashes, num_bands, rows_per_band, similarity_threshold)
 else:
     print("No articles were loaded. Please check the Data folder path and contents.")
